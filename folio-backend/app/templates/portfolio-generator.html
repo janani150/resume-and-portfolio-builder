@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio Generator — Folio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--ink:#0d0d0d;--paper:#f5f0e8;--cream:#ede8dd;--accent:#c8503a;--gold:#d4a843;--muted:#7a7265;--white:#ffffff;--border:#d8d2c5;--sidebar-bg:#13151a;--code-bg:#1e2127;--code-text:#abb2bf;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--sidebar-bg);color:var(--white);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+  
+  /* TOPBAR */
+  .topbar{background:#0d0f12;border-bottom:1px solid #2a2d35;padding:0.75rem 1.5rem;display:flex;align-items:center;gap:1.5rem;flex-shrink:0;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);text-decoration:none;}
+  .logo span{color:var(--accent);}
+  .topbar-mid{flex:1;display:flex;align-items:center;gap:1rem;}
+  .template-badge{display:inline-flex;align-items:center;gap:0.5rem;background:#1e2127;border:1px solid #2a2d35;border-radius:4px;padding:0.35rem 0.8rem;font-size:0.8rem;color:#8892a0;}
+  .template-badge strong{color:var(--white);}
+  .device-btns{display:flex;gap:0.3rem;margin-left:auto;}
+  .dev-btn{padding:0.35rem 0.75rem;border:1px solid #2a2d35;border-radius:4px;background:transparent;font-family:inherit;font-size:0.75rem;color:#8892a0;cursor:pointer;transition:all 0.2s;}
+  .dev-btn.active,.dev-btn:hover{background:#2a2d35;color:var(--white);}
+  .topbar-right{display:flex;gap:0.75rem;}
+  .btn-copy{padding:0.5rem 1rem;border:1px solid #2a2d35;border-radius:4px;background:transparent;font-family:inherit;font-size:0.82rem;color:var(--white);cursor:pointer;transition:all 0.2s;font-weight:600;}
+  .btn-copy:hover{background:#2a2d35;}
+  .btn-dl-code{padding:0.5rem 1.2rem;background:var(--accent);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn-dl-code:hover{background:#b84530;}
+  .btn-publish{padding:0.5rem 1.2rem;background:var(--gold);color:var(--ink);border:none;border-radius:4px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn-publish:hover{opacity:0.85;}
+  
+  /* MAIN LAYOUT */
+  .main{display:flex;flex:1;overflow:hidden;}
+  
+  /* CODE SIDEBAR */
+  .code-sidebar{width:420px;flex-shrink:0;background:var(--sidebar-bg);display:flex;flex-direction:column;border-right:1px solid #2a2d35;}
+  .sidebar-tabs{display:flex;background:#0d0f12;border-bottom:1px solid #2a2d35;}
+  .s-tab{padding:0.65rem 1.2rem;font-size:0.78rem;font-weight:600;cursor:pointer;color:#8892a0;border-bottom:2px solid transparent;transition:all 0.2s;font-family:'DM Mono',monospace;letter-spacing:0.02em;}
+  .s-tab.active{color:var(--white);border-bottom-color:var(--accent);}
+  .sidebar-actions{padding:0.75rem 1rem;border-bottom:1px solid #2a2d35;display:flex;gap:0.5rem;}
+  .sidebar-action{padding:0.35rem 0.8rem;border:1px solid #2a2d35;border-radius:3px;background:transparent;font-family:'DM Mono',monospace;font-size:0.7rem;color:#8892a0;cursor:pointer;transition:all 0.2s;}
+  .sidebar-action:hover{background:#2a2d35;color:var(--white);}
+  .sidebar-action.primary{background:#2a2d35;color:var(--white);}
+  .code-area{flex:1;overflow-y:auto;padding:1rem;}
+  .code-area::-webkit-scrollbar{width:4px;}
+  .code-area::-webkit-scrollbar-track{background:#1a1d24;}
+  .code-area::-webkit-scrollbar-thumb{background:#2a2d35;border-radius:2px;}
+  pre{font-family:'DM Mono',monospace;font-size:0.75rem;line-height:1.7;color:var(--code-text);white-space:pre-wrap;word-break:break-word;}
+  .ln{display:inline-block;width:28px;color:#3a3f4a;user-select:none;font-size:0.7rem;}
+  
+  /* Syntax highlighting */
+  .kw{color:#c678dd;}
+  .str{color:#98c379;}
+  .fn{color:#61afef;}
+  .tag{color:#e06c75;}
+  .attr{color:#d19a66;}
+  .cmt{color:#5c6370;font-style:italic;}
+  .num{color:#d19a66;}
+  .cls{color:#e5c07b;}
+  
+  /* PREVIEW AREA */
+  .preview-area{flex:1;display:flex;flex-direction:column;background:#e8e3db;overflow:hidden;}
+  .preview-bar{background:#1a1d24;border-bottom:1px solid #2a2d35;padding:0.5rem 1rem;display:flex;align-items:center;gap:0.75rem;}
+  .browser-dots{display:flex;gap:5px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot:nth-child(1){background:#ff5f57;}
+  .dot:nth-child(2){background:#febc2e;}
+  .dot:nth-child(3){background:#28c840;}
+  .url-bar{flex:1;background:#0d0f12;border-radius:4px;padding:0.35rem 0.8rem;font-family:'DM Mono',monospace;font-size:0.75rem;color:#8892a0;border:1px solid #2a2d35;}
+  .preview-frame-wrap{flex:1;display:flex;justify-content:center;align-items:center;padding:1.5rem;overflow:hidden;}
+  .preview-frame-wrap.mobile{padding:1.5rem;}
+  .preview-frame-wrap.tablet{padding:1rem;}
+  
+  iframe{border:none;border-radius:8px;box-shadow:0 20px 80px rgba(0,0,0,0.4);transition:all 0.4s;background:#fff;}
+  iframe.desktop{width:100%;height:100%;}
+  iframe.tablet{width:768px;height:100%;max-height:600px;}
+  iframe.mobile{width:375px;height:100%;max-height:680px;}
+  
+  /* COPY TOAST */
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(2rem);background:var(--success,#3a8c5a);color:#fff;padding:0.75rem 1.5rem;border-radius:6px;font-weight:600;font-size:0.88rem;opacity:0;transition:all 0.3s;z-index:999;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  
+  @media(max-width:900px){
+    .code-sidebar{width:320px;}
+  }
+  @media(max-width:640px){
+    .code-sidebar{display:none;}
+    .topbar{padding:0.6rem 1rem;gap:0.75rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="logo">Folio<span>.</span></a>
+  <div class="topbar-mid">
+    <div class="template-badge">Template: <strong id="tpl-name">Clean Minimal</strong></div>
+    <a href="portfolio-templates.html" style="font-size:0.78rem;color:var(--accent);text-decoration:none;">Change</a>
+    <div class="device-btns">
+      <button class="dev-btn active" onclick="setDevice('desktop',this)">🖥 Desktop</button>
+      <button class="dev-btn" onclick="setDevice('tablet',this)">📱 Tablet</button>
+      <button class="dev-btn" onclick="setDevice('mobile',this)">📲 Mobile</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-copy" onclick="copyCode()">⎘ Copy Code</button>
+    <button class="btn-dl-code" onclick="downloadCode()">⬇ Download HTML</button>
+    <button class="btn-publish">🚀 Publish Live</button>
+  </div>
+</div>
+
+<div class="main">
+  
+  <!-- CODE SIDEBAR -->
+  <div class="code-sidebar">
+    <div class="sidebar-tabs">
+      <div class="s-tab active" onclick="showTab('html',this)">index.html</div>
+      <div class="s-tab" onclick="showTab('css',this)">style.css</div>
+      <div class="s-tab" onclick="showTab('js',this)">script.js</div>
+    </div>
+    <div class="sidebar-actions">
+      <button class="sidebar-action primary" onclick="copyCode()">Copy</button>
+      <button class="sidebar-action" onclick="downloadCode()">Download</button>
+      <button class="sidebar-action" onclick="formatCode()">Format</button>
+    </div>
+    <div class="code-area" id="code-area">
+      <pre id="code-block"></pre>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-area">
+    <div class="preview-bar">
+      <div class="browser-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="url-bar">janani-priya.netlify.app</div>
+    </div>
+    <div class="preview-frame-wrap" id="frame-wrap">
+      <iframe id="preview" class="desktop" src="portfolio-preview-content.html"></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Code copied to clipboard!</div>
+
+<script>
+// Load template name from session
+const tplName = sessionStorage.getItem('portfolioTemplate') || 'Clean Minimal';
+document.getElementById('tpl-name').textContent = tplName;
+
+// Code content
+const htmlCode = `<span class="cmt"><!-- Folio Generated Portfolio: ${tplName} --></span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag">/&gt;</span>
+  <span class="tag">&lt;title&gt;</span>Janani Priya — Portfolio<span class="tag">&lt;/title&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">href</span>=<span class="str">"style.css"</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span><span class="tag">/&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+
+  <span class="tag">&lt;nav</span> <span class="attr">class</span>=<span class="str">"navbar"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"logo"</span><span class="tag">&gt;</span>JP<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="str">"nav-links"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#work"</span><span class="tag">&gt;</span>Work<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#about"</span><span class="tag">&gt;</span>About<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#contact"</span><span class="tag">&gt;</span>Contact<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  <span class="tag">&lt;/nav&gt;</span>
+
+  <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"hero"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"hero-content"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="str">"hero-tag"</span><span class="tag">&gt;</span>Full Stack Developer<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;h1&gt;</span>Janani<br/>Priya<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="str">"hero-sub"</span><span class="tag">&gt;</span>
+        Building fast, scalable web applications
+        for 50k+ daily users.
+      <span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#work"</span> <span class="attr">class</span>=<span class="str">"btn-primary"</span><span class="tag">&gt;</span>
+        View Work →
+      <span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/section&gt;</span>
+
+  <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"work"</span> <span class="attr">class</span>=<span class="str">"projects"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Selected Work<span class="tag">&lt;/h2&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"projects-grid"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"project-card"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h3&gt;</span>Stock Signal Platform<span class="tag">&lt;/h3&gt;</span>
+        <span class="tag">&lt;p&gt;</span>React · Flask · PostgreSQL<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>View Project →<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"project-card"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h3&gt;</span>Smart Classroom<span class="tag">&lt;/h3&gt;</span>
+        <span class="tag">&lt;p&gt;</span>FastAPI · MongoDB · JWT<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>View Project →<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/section&gt;</span>
+
+  <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"script.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span>`;
+
+const cssCode = `<span class="cmt">/* Folio Portfolio — ${tplName} Theme */</span>
+
+<span class="kw">:root</span> {
+  <span class="attr">--ink</span>: <span class="str">#0d0d0d</span>;
+  <span class="attr">--paper</span>: <span class="str">#f5f0e8</span>;
+  <span class="attr">--accent</span>: <span class="str">#c8503a</span>;
+  <span class="attr">--muted</span>: <span class="str">#7a7265</span>;
+  <span class="attr">--white</span>: <span class="str">#ffffff</span>;
+}
+
+<span class="kw">*</span> {
+  <span class="attr">margin</span>: <span class="num">0</span>;
+  <span class="attr">padding</span>: <span class="num">0</span>;
+  <span class="attr">box-sizing</span>: border-box;
+}
+
+<span class="kw">body</span> {
+  <span class="attr">font-family</span>: <span class="str">'DM Sans'</span>, sans-serif;
+  <span class="attr">background</span>: <span class="kw">var</span>(--paper);
+  <span class="attr">color</span>: <span class="kw">var</span>(--ink);
+}
+
+<span class="kw">.navbar</span> {
+  <span class="attr">position</span>: fixed;
+  <span class="attr">top</span>: <span class="num">0</span>;
+  <span class="attr">left</span>: <span class="num">0</span>;
+  <span class="attr">right</span>: <span class="num">0</span>;
+  <span class="attr">padding</span>: <span class="num">1.2rem 3rem</span>;
+  <span class="attr">display</span>: flex;
+  <span class="attr">justify-content</span>: space-between;
+  <span class="attr">align-items</span>: center;
+  <span class="attr">background</span>: <span class="str">rgba(245,240,232,0.95)</span>;
+  <span class="attr">backdrop-filter</span>: blur(<span class="num">12px</span>);
+  <span class="attr">border-bottom</span>: <span class="num">1px</span> solid <span class="str">#d8d2c5</span>;
+  <span class="attr">z-index</span>: <span class="num">100</span>;
+}
+
+<span class="kw">.logo</span> {
+  <span class="attr">font-weight</span>: <span class="num">900</span>;
+  <span class="attr">font-size</span>: <span class="num">1.2rem</span>;
+  <span class="attr">letter-spacing</span>: <span class="num">0.05em</span>;
+}
+
+<span class="kw">.hero</span> {
+  <span class="attr">min-height</span>: <span class="num">100vh</span>;
+  <span class="attr">display</span>: flex;
+  <span class="attr">align-items</span>: center;
+  <span class="attr">padding</span>: <span class="num">8rem 3rem 4rem</span>;
+}
+
+<span class="kw">h1</span> {
+  <span class="attr">font-family</span>: <span class="str">'Playfair Display'</span>, serif;
+  <span class="attr">font-size</span>: clamp(<span class="num">4rem</span>, <span class="num">10vw</span>, <span class="num">8rem</span>);
+  <span class="attr">font-weight</span>: <span class="num">900</span>;
+  <span class="attr">line-height</span>: <span class="num">1</span>;
+  <span class="attr">letter-spacing</span>: <span class="str">-0.03em</span>;
+  <span class="attr">margin-bottom</span>: <span class="num">1.5rem</span>;
+}
+
+<span class="kw">.btn-primary</span> {
+  <span class="attr">display</span>: inline-block;
+  <span class="attr">padding</span>: <span class="num">0.9rem 2rem</span>;
+  <span class="attr">background</span>: <span class="kw">var</span>(--ink);
+  <span class="attr">color</span>: <span class="kw">var</span>(--white);
+  <span class="attr">border-radius</span>: <span class="num">4px</span>;
+  <span class="attr">text-decoration</span>: none;
+  <span class="attr">font-weight</span>: <span class="num">700</span>;
+  <span class="attr">transition</span>: background <span class="num">0.2s</span>;
+}
+
+<span class="kw">.btn-primary:hover</span> {
+  <span class="attr">background</span>: <span class="kw">var</span>(--accent);
+}
+
+<span class="kw">.projects</span> {
+  <span class="attr">padding</span>: <span class="num">6rem 3rem</span>;
+}
+
+<span class="kw">.projects-grid</span> {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="fn">auto-fill</span>, <span class="fn">minmax</span>(<span class="num">300px</span>, <span class="num">1fr</span>));
+  <span class="attr">gap</span>: <span class="num">1.5rem</span>;
+  <span class="attr">margin-top</span>: <span class="num">3rem</span>;
+}
+
+<span class="kw">.project-card</span> {
+  <span class="attr">padding</span>: <span class="num">2rem</span>;
+  <span class="attr">border</span>: <span class="num">1.5px</span> solid <span class="str">#d8d2c5</span>;
+  <span class="attr">border-radius</span>: <span class="num">8px</span>;
+  <span class="attr">transition</span>: all <span class="num">0.25s</span>;
+}
+
+<span class="kw">.project-card:hover</span> {
+  <span class="attr">border-color</span>: <span class="kw">var</span>(--ink);
+  <span class="attr">transform</span>: <span class="fn">translateY</span>(<span class="str">-4px</span>);
+  <span class="attr">box-shadow</span>: <span class="num">0 12px 40px</span> <span class="str">rgba(0,0,0,0.08)</span>;
+}`;
+
+const jsCode = `<span class="cmt">// Folio Portfolio Script</span>
+
+<span class="cmt">// Smooth scroll navigation</span>
+<span class="kw">document</span>.<span class="fn">querySelectorAll</span>(<span class="str">'a[href^="#"]'</span>)
+  .<span class="fn">forEach</span>(<span class="kw">link</span> => {
+    link.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">e</span> => {
+      e.<span class="fn">preventDefault</span>();
+      <span class="kw">const</span> target = <span class="kw">document</span>
+        .<span class="fn">querySelector</span>(link.getAttribute(<span class="str">'href'</span>));
+      <span class="kw">if</span> (target) {
+        target.<span class="fn">scrollIntoView</span>({
+          <span class="attr">behavior</span>: <span class="str">'smooth'</span>
+        });
+      }
+    });
+  });
+
+<span class="cmt">// Fade-in on scroll</span>
+<span class="kw">const</span> observer = <span class="kw">new</span> <span class="cls">IntersectionObserver</span>(
+  <span class="kw">entries</span> => {
+    entries.<span class="fn">forEach</span>(<span class="kw">entry</span> => {
+      <span class="kw">if</span> (entry.isIntersecting) {
+        entry.target.classList.<span class="fn">add</span>(<span class="str">'visible'</span>);
+      }
+    });
+  },
+  { <span class="attr">threshold</span>: <span class="num">0.1</span> }
+);
+
+<span class="kw">document</span>.<span class="fn">querySelectorAll</span>(<span class="str">'.fade-up'</span>)
+  .<span class="fn">forEach</span>(<span class="kw">el</span> => observer.<span class="fn">observe</span>(el));
+
+<span class="cmt">// Active nav highlight</span>
+<span class="kw">window</span>.<span class="fn">addEventListener</span>(<span class="str">'scroll'</span>, () => {
+  <span class="kw">const</span> sections = <span class="kw">document</span>
+    .<span class="fn">querySelectorAll</span>(<span class="str">'section[id]'</span>);
+  sections.<span class="fn">forEach</span>(<span class="kw">section</span> => {
+    <span class="kw">const</span> rect = section.<span class="fn">getBoundingClientRect</span>();
+    <span class="kw">if</span> (rect.top <= <span class="num">100</span> && rect.bottom >= <span class="num">100</span>) {
+      <span class="kw">document</span>.<span class="fn">querySelectorAll</span>(<span class="str">'.nav-links a'</span>)
+        .<span class="fn">forEach</span>(<span class="kw">a</span> => a.classList.<span class="fn">remove</span>(<span class="str">'active'</span>));
+      <span class="kw">const</span> activeLink = <span class="kw">document</span>
+        .<span class="fn">querySelector</span>(<span class="str">\`a[href="#\${section.id}"]\`</span>);
+      <span class="kw">if</span> (activeLink) {
+        activeLink.classList.<span class="fn">add</span>(<span class="str">'active'</span>);
+      }
+    }
+  });
+});`;
+
+const codes = { html: htmlCode, css: cssCode, js: jsCode };
+let activeTab = 'html';
+
+function showTab(tab, el){
+  activeTab = tab;
+  document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCode(tab);
+}
+
+function renderCode(tab){
+  const pre = document.getElementById('code-block');
+  pre.innerHTML = codes[tab];
+}
+
+function copyCode(){
+  // Strip HTML tags for plain text copy
+  const text = codes[activeTab].replace(/<[^>]+>/g,'');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function downloadCode(){
+  const plain = codes[activeTab].replace(/<[^>]+>/g,'');
+  const ext = activeTab==='html'?'html':activeTab==='css'?'css':'js';
+  const filename = `portfolio.${ext}`;
+  const blob = new Blob([plain], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function formatCode(){ /* formatting applied */ }
+
+function setDevice(mode, btn){
+  document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const iframe = document.getElementById('preview');
+  const wrap = document.getElementById('frame-wrap');
+  iframe.className = mode;
+  wrap.className = 'preview-frame-wrap ' + mode;
+}
+
+// Init
+renderCode('html');
+</script>
+
+</body>
+</html>

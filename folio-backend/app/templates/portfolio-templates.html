@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio Templates — Folio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--ink:#0d0d0d;--paper:#f5f0e8;--cream:#ede8dd;--accent:#c8503a;--gold:#d4a843;--muted:#7a7265;--white:#ffffff;--border:#d8d2c5;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);}
+  
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(245,240,232,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:1rem 3rem;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--ink);text-decoration:none;}
+  .logo span{color:var(--accent);}
+  .topbar-links{display:flex;gap:1.5rem;align-items:center;}
+  .topbar-link{text-decoration:none;color:var(--muted);font-size:0.88rem;font-weight:500;transition:color 0.2s;}
+  .topbar-link:hover,.topbar-link.active{color:var(--ink);font-weight:700;}
+  .topbar-link.active{border-bottom:2px solid var(--accent);}
+  .btn-resume{padding:0.55rem 1.2rem;border:1.5px solid var(--border);border-radius:4px;background:transparent;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--ink);}
+  .btn-resume:hover{border-color:var(--ink);}
+
+  .hero{padding:5rem 3rem 3rem;text-align:center;position:relative;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center top, rgba(200,80,58,0.06), transparent 60%);pointer-events:none;}
+  .hero-label{font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:900;letter-spacing:-0.03em;margin-bottom:1rem;}
+  .hero-sub{color:var(--muted);font-size:1rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.7;}
+  
+  .filters{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem;}
+  .filter-btn{padding:0.45rem 1.2rem;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--muted);}
+  .filter-btn.active,.filter-btn:hover{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+  /* PORTFOLIO CARDS */
+  .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:2rem;padding:0 3rem 5rem;max-width:1400px;margin:0 auto;}
+  
+  .p-card{border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.3s;border:2px solid transparent;background:var(--white);}
+  .p-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.12);border-color:var(--muted);}
+  .p-card.selected{border-color:var(--accent);box-shadow:0 0 0 4px rgba(200,80,58,0.12);}
+  
+  .p-preview{height:260px;position:relative;overflow:hidden;}
+  
+  /* MINIMAL WHITE */
+  .pv-minimal{background:#ffffff;display:flex;flex-direction:column;}
+  .pv-minimal .nav{height:36px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;}
+  .pv-minimal .nav-logo{font-weight:800;font-size:0.65rem;letter-spacing:0.05em;}
+  .pv-minimal .nav-items{display:flex;gap:0.6rem;}
+  .pv-minimal .nav-items span{font-size:0.45rem;color:#999;}
+  .pv-minimal .hero-area{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:1.2rem;}
+  .pv-minimal .h-tag{font-size:0.5rem;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem;}
+  .pv-minimal .h-name{font-size:1.3rem;font-weight:900;line-height:1.1;margin-bottom:0.3rem;}
+  .pv-minimal .h-role{font-size:0.55rem;color:#666;}
+  .pv-minimal .h-btn{margin-top:0.6rem;padding:0.3rem 0.8rem;background:#0d0d0d;color:#fff;border-radius:3px;font-size:0.48rem;font-weight:700;}
+  .pv-minimal .cards{display:flex;gap:0.4rem;padding:0 1.2rem 0.8rem;}
+  .pv-minimal .mini-card{flex:1;height:30px;background:#f8f8f8;border-radius:4px;}
+
+  /* DARK HACKER */
+  .pv-dark{background:#0a0a0a;display:flex;flex-direction:column;padding:1.2rem;}
+  .pv-dark .cursor{color:#00ff88;font-size:0.55rem;font-family:'DM Mono',monospace;margin-bottom:0.5rem;}
+  .pv-dark .d-name{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:#fff;line-height:1;}
+  .pv-dark .d-role{font-size:0.5rem;color:#00ff88;font-family:'DM Mono',monospace;letter-spacing:0.1em;margin:0.3rem 0 0.8rem;}
+  .pv-dark .d-bar{height:1px;background:#1a1a1a;margin-bottom:0.5rem;}
+  .pv-dark .d-projects{display:flex;flex-direction:column;gap:0.4rem;}
+  .pv-dark .d-proj{background:#111;border-left:2px solid #00ff88;padding:0.4rem 0.6rem;}
+  .pv-dark .d-proj-name{font-size:0.52rem;color:#00ff88;font-weight:700;font-family:'DM Mono',monospace;}
+  .pv-dark .d-proj-desc{font-size:0.42rem;color:#444;margin-top:1px;}
+
+  /* MAGAZINE */
+  .pv-magazine{background:#f9f5f0;display:flex;flex-direction:column;}
+  .pv-magazine .mag-top{height:70px;background:var(--ink);display:flex;align-items:center;justify-content:center;}
+  .pv-magazine .mag-logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:#fff;letter-spacing:-0.02em;}
+  .pv-magazine .mag-hero{flex:1;padding:1rem;display:flex;gap:0.8rem;}
+  .pv-magazine .mag-text{flex:1;}
+  .pv-magazine .mag-category{font-size:0.48rem;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;}
+  .pv-magazine .mag-title{font-family:'Playfair Display',serif;font-size:0.9rem;font-weight:700;line-height:1.2;margin-bottom:0.4rem;}
+  .pv-magazine .mag-desc{font-size:0.45rem;color:#666;line-height:1.5;}
+  .pv-magazine .mag-img{width:80px;background:var(--cream);border-radius:4px;}
+  .pv-magazine .mag-projects{padding:0 1rem 0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;}
+  .pv-magazine .mag-proj{background:#fff;padding:0.4rem;border-radius:3px;border:1px solid #eee;}
+  .pv-magazine .mag-proj-title{font-size:0.48rem;font-weight:700;margin-bottom:2px;}
+  .pv-magazine .mag-proj-tag{font-size:0.4rem;color:var(--accent);}
+
+  /* GLASSMORPHISM */
+  .pv-glass{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0.5rem;position:relative;overflow:hidden;}
+  .pv-glass::before{content:'';position:absolute;top:-30%;left:-20%;width:160%;height:160%;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 60%);}
+  .pv-glass .g-card{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:0.8rem 1.2rem;width:80%;position:relative;z-index:1;}
+  .pv-glass .g-name{font-size:1.1rem;font-weight:900;color:#fff;font-family:'Playfair Display',serif;}
+  .pv-glass .g-role{font-size:0.48rem;color:rgba(255,255,255,0.7);margin-top:2px;}
+  .pv-glass .g-chips{display:flex;gap:0.3rem;margin-top:0.5rem;flex-wrap:wrap;}
+  .pv-glass .g-chip{font-size:0.42rem;padding:1px 5px;background:rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.8);}
+  .pv-glass .g-mini{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.5rem 0.8rem;width:70%;position:relative;z-index:1;}
+  .pv-glass .g-mini-title{font-size:0.45rem;color:rgba(255,255,255,0.5);margin-bottom:3px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;}
+  .pv-glass .g-bars{display:flex;flex-direction:column;gap:3px;}
+  .pv-glass .g-bar{height:3px;background:rgba(255,255,255,0.2);border-radius:2px;}
+  .pv-glass .g-bar-fill{height:3px;background:rgba(255,255,255,0.6);border-radius:2px;}
+
+  /* BRUTALIST */
+  .pv-brutalist{background:#fff;border:3px solid #000;display:flex;flex-direction:column;}
+  .pv-brutalist .b-header{background:#000;padding:0.8rem 1rem;display:flex;justify-content:space-between;align-items:center;}
+  .pv-brutalist .b-name{font-size:1rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.02em;}
+  .pv-brutalist .b-tag{background:var(--accent);color:#fff;font-size:0.45rem;font-weight:800;padding:2px 6px;text-transform:uppercase;letter-spacing:0.08em;}
+  .pv-brutalist .b-body{flex:1;padding:0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+  .pv-brutalist .b-block{border:2px solid #000;padding:0.5rem;}
+  .pv-brutalist .b-block-title{font-size:0.45rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;border-bottom:2px solid #000;margin-bottom:0.3rem;padding-bottom:0.2rem;}
+  .pv-brutalist .b-line{height:2px;background:#000;margin-bottom:2px;}
+  .pv-brutalist .b-line:last-child{width:60%;}
+
+  .p-card-meta{padding:1.2rem 1.4rem;border-top:1px solid var(--border);}
+  .p-card-name{font-weight:700;font-size:0.95rem;margin-bottom:0.3rem;}
+  .p-card-desc{font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;}
+  .p-card-footer{display:flex;align-items:center;justify-content:space-between;}
+  .p-card-tags{display:flex;gap:0.4rem;}
+  .p-tag{font-size:0.7rem;padding:0.2rem 0.55rem;background:var(--cream);border-radius:3px;color:var(--muted);font-weight:500;}
+  .p-btn{padding:0.45rem 1rem;background:var(--ink);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .p-btn:hover{background:var(--accent);}
+
+  /* SELECTED BOTTOM BAR */
+  .sel-bar{position:fixed;bottom:0;left:0;right:0;background:var(--ink);color:var(--white);padding:1rem 3rem;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform 0.3s;z-index:200;}
+  .sel-bar.show{transform:none;}
+  .sel-info strong{font-family:'Playfair Display',serif;font-size:1.1rem;}
+  .btn-gen{padding:0.75rem 2rem;background:var(--accent);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn-gen:hover{background:#b84530;}
+
+  @media(max-width:768px){
+    .portfolio-grid{grid-template-columns:1fr;padding:0 1.2rem 3rem;}
+    .hero,.topbar{padding-left:1.2rem;padding-right:1.2rem;}
+    .hero{padding-top:4rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="logo">Folio<span>.</span></a>
+  <div class="topbar-links">
+    <a href="resume-info.html" class="topbar-link">Resume Builder</a>
+    <a href="portfolio-templates.html" class="topbar-link active">Portfolio Builder</a>
+  </div>
+  <a href="resume-preview.html" class="btn-resume">← Back to Resume</a>
+</div>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-label">Portfolio Builder</div>
+  <div class="hero-title">Pick your<br><span style="color:var(--accent);font-style:italic;">visual identity</span></div>
+  <div class="hero-sub">Choose a portfolio template that reflects your style. We'll generate it with your resume data and give you the full source code.</div>
+  
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all',this)">All</button>
+    <button class="filter-btn" onclick="filter('minimal',this)">Minimal</button>
+    <button class="filter-btn" onclick="filter('dark',this)">Dark</button>
+    <button class="filter-btn" onclick="filter('creative',this)">Creative</button>
+    <button class="filter-btn" onclick="filter('bold',this)">Bold</button>
+  </div>
+</div>
+
+<div class="portfolio-grid">
+
+  <!-- MINIMAL WHITE -->
+  <div class="p-card" data-tags="minimal" onclick="selectPortfolio(this,'Clean Minimal')">
+    <div class="p-preview pv-minimal">
+      <div class="nav"><span class="nav-logo">JP</span><div class="nav-items"><span>Work</span><span>About</span><span>Contact</span></div></div>
+      <div class="hero-area">
+        <div class="h-tag">Full Stack Developer</div>
+        <div class="h-name" style="font-family:'Playfair Display',serif;">Janani<br/>Priya</div>
+        <div class="h-role">Building fast, scalable web apps</div>
+        <div class="h-btn">View Work →</div>
+      </div>
+      <div class="cards">
+        <div class="mini-card"></div>
+        <div class="mini-card" style="background:#f0f0f0;"></div>
+        <div class="mini-card"></div>
+      </div>
+    </div>
+    <div class="p-card-meta">
+      <div class="p-card-name">Clean Minimal</div>
+      <div class="p-card-desc">Pure white with generous space. Let your work speak for itself.</div>
+      <div class="p-card-footer">
+        <div class="p-card-tags"><span class="p-tag">Free</span><span class="p-tag">Minimal</span></div>
+        <button class="p-btn" onclick="event.stopPropagation();selectAndGen(this,'Clean Minimal')">Use This →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK HACKER -->
+  <div class="p-card" data-tags="dark" onclick="selectPortfolio(this,'Dark Terminal')">
+    <div class="p-preview pv-dark">
+      <div class="cursor">$ whoami</div>
+      <div class="d-name">Janani<br/>Priya</div>
+      <div class="d-role">Full Stack Developer</div>
+      <div class="d-bar"></div>
+      <div class="d-projects">
+        <div class="d-proj"><div class="d-proj-name">▸ stock-signal-platform</div><div class="d-proj-desc">React · Flask · PostgreSQL</div></div>
+        <div class="d-proj"><div class="d-proj-name">▸ smart-classroom</div><div class="d-proj-desc">FastAPI · MongoDB · JWT</div></div>
+        <div class="d-proj"><div class="d-proj-name">▸ bus-tracker-cnn</div><div class="d-proj-desc">Python · OpenCV · EasyOCR</div></div>
+      </div>
+    </div>
+    <div class="p-card-meta">
+      <div class="p-card-name">Dark Terminal</div>
+      <div class="p-card-desc">Monospace, terminal-style aesthetic. Perfect for developers.</div>
+      <div class="p-card-footer">
+        <div class="p-card-tags"><span class="p-tag">Free</span><span class="p-tag">Dark</span></div>
+        <button class="p-btn" onclick="event.stopPropagation();selectAndGen(this,'Dark Terminal')">Use This →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAGAZINE -->
+  <div class="p-card" data-tags="creative" onclick="selectPortfolio(this,'Editorial')">
+    <div class="p-preview pv-magazine">
+      <div class="mag-top"><div class="mag-logo">Janani Priya</div></div>
+      <div class="mag-hero">
+        <div class="mag-text">
+          <div class="mag-category">Portfolio · 2024</div>
+          <div class="mag-title">Full Stack Developer Crafting Digital Experiences</div>
+          <div class="mag-desc">Building scalable web apps with React, Python, and cloud infrastructure for 50k+ users.</div>
+        </div>
+        <div class="mag-img"></div>
+      </div>
+      <div class="mag-projects">
+        <div class="mag-proj"><div class="mag-proj-title">Signal Platform</div><div class="mag-proj-tag">React · Flask</div></div>
+        <div class="mag-proj"><div class="mag-proj-title">Smart Classroom</div><div class="mag-proj-tag">FastAPI · Mongo</div></div>
+      </div>
+    </div>
+    <div class="p-card-meta">
+      <div class="p-card-name">Editorial</div>
+      <div class="p-card-desc">Magazine-layout with bold typography. Stands out immediately.</div>
+      <div class="p-card-footer">
+        <div class="p-card-tags"><span class="p-tag">Pro</span><span class="p-tag">Creative</span></div>
+        <button class="p-btn" onclick="event.stopPropagation();selectAndGen(this,'Editorial')">Use This →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLASS -->
+  <div class="p-card" data-tags="creative minimal" onclick="selectPortfolio(this,'Glass Morph')">
+    <div class="p-preview pv-glass">
+      <div class="g-card">
+        <div class="g-name">Janani Priya</div>
+        <div class="g-role">Full Stack Developer</div>
+        <div class="g-chips">
+          <span class="g-chip">React</span><span class="g-chip">Python</span><span class="g-chip">AWS</span><span class="g-chip">FastAPI</span>
+        </div>
+      </div>
+      <div class="g-mini">
+        <div class="g-mini-title">Projects</div>
+        <div class="g-bars">
+          <div style="display:flex;align-items:center;gap:4px;"><div class="g-bar-fill" style="width:80%;height:3px;background:rgba(255,255,255,0.6);border-radius:2px;"></div><span style="font-size:0.4rem;color:rgba(255,255,255,0.5);">Stock Platform</span></div>
+          <div style="display:flex;align-items:center;gap:4px;"><div class="g-bar-fill" style="width:65%;height:3px;background:rgba(255,255,255,0.6);border-radius:2px;"></div><span style="font-size:0.4rem;color:rgba(255,255,255,0.5);">Smart Classroom</span></div>
+          <div style="display:flex;align-items:center;gap:4px;"><div class="g-bar-fill" style="width:50%;height:3px;background:rgba(255,255,255,0.6);border-radius:2px;"></div><span style="font-size:0.4rem;color:rgba(255,255,255,0.5);">Bus Tracker</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="p-card-meta">
+      <div class="p-card-name">Glass Morph</div>
+      <div class="p-card-desc">Dreamy purple gradient with glassmorphism UI. Visually stunning.</div>
+      <div class="p-card-footer">
+        <div class="p-card-tags"><span class="p-tag">Pro</span><span class="p-tag">Creative</span></div>
+        <button class="p-btn" onclick="event.stopPropagation();selectAndGen(this,'Glass Morph')">Use This →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRUTALIST -->
+  <div class="p-card" data-tags="bold creative" onclick="selectPortfolio(this,'Brutalist')">
+    <div class="p-preview pv-brutalist">
+      <div class="b-header"><div class="b-name">Janani Priya</div><div class="b-tag">Developer</div></div>
+      <div class="b-body">
+        <div class="b-block">
+          <div class="b-block-title">Work</div>
+          <div class="b-line"></div>
+          <div class="b-line"></div>
+          <div class="b-line" style="width:70%;"></div>
+        </div>
+        <div class="b-block">
+          <div class="b-block-title">Skills</div>
+          <div style="font-size:0.42rem;line-height:1.6;">React · Python<br/>Flask · AWS<br/>MongoDB</div>
+        </div>
+        <div class="b-block" style="grid-column:1/-1;">
+          <div class="b-block-title">Projects</div>
+          <div class="b-line"></div>
+          <div class="b-line" style="width:80%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="p-card-meta">
+      <div class="p-card-name">Brutalist</div>
+      <div class="p-card-desc">Raw, grid-based brutalism. Unforgettable and highly distinctive.</div>
+      <div class="p-card-footer">
+        <div class="p-card-tags"><span class="p-tag">Pro</span><span class="p-tag">Bold</span></div>
+        <button class="p-btn" onclick="event.stopPropagation();selectAndGen(this,'Brutalist')">Use This →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sel-bar" id="sel-bar">
+  <div class="sel-info">Selected: <strong id="sel-name">—</strong></div>
+  <button class="btn-gen" onclick="location.href='portfolio-generator.html'">Generate My Portfolio →</button>
+</div>
+
+<script>
+function selectPortfolio(card, name){
+  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('sel-name').textContent = name;
+  document.getElementById('sel-bar').classList.add('show');
+  sessionStorage.setItem('portfolioTemplate', name);
+}
+function selectAndGen(btn, name){
+  selectPortfolio(btn.closest('.p-card'), name);
+  setTimeout(()=>location.href='portfolio-generator.html', 300);
+}
+function filter(type, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.p-card').forEach(c=>{
+    const tags = c.dataset.tags||'';
+    c.style.display = (type==='all'||tags.includes(type)) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

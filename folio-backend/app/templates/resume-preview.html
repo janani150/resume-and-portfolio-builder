@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Preview Resume — Folio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--ink:#0d0d0d;--paper:#f5f0e8;--cream:#ede8dd;--accent:#c8503a;--gold:#d4a843;--muted:#7a7265;--white:#ffffff;--border:#d8d2c5;--success:#3a8c5a;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+  
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(245,240,232,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:1rem 3rem;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--ink);text-decoration:none;}
+  .logo span{color:var(--accent);}
+  .progress-bar-wrap{flex:1;max-width:400px;margin:0 2rem;}
+  .progress-label{font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+  .progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;width:100%;}
+  .topbar-actions{display:flex;gap:0.75rem;align-items:center;}
+  .btn-back{padding:0.6rem 1.2rem;border:1.5px solid var(--border);border-radius:4px;background:transparent;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--ink);}
+  .btn-back:hover{border-color:var(--ink);}
+  .btn-portfolio{padding:0.6rem 1.4rem;border:1.5px solid var(--border);border-radius:4px;background:transparent;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--ink);text-decoration:none;}
+  .btn-portfolio:hover{background:var(--cream);}
+  .btn-download{padding:0.7rem 1.6rem;border:none;border-radius:4px;background:var(--accent);color:var(--white);font-family:inherit;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
+  .btn-download:hover{background:#b84530;transform:translateY(-1px);}
+
+  .preview-layout{display:grid;grid-template-columns:240px 1fr 260px;min-height:calc(100vh - 65px);}
+  
+  /* LEFT PANEL */
+  .left-panel{border-right:1px solid var(--border);padding:2rem 1.5rem;background:var(--white);}
+  .panel-title{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.5rem;}
+  
+  .score-ring{width:80px;height:80px;margin:0 auto 1rem;position:relative;}
+  .score-ring svg{transform:rotate(-90deg);}
+  .score-ring circle{fill:none;stroke-width:6;}
+  .score-ring .bg{stroke:#e8e0d5;}
+  .score-ring .fill{stroke:var(--accent);stroke-dasharray:220;stroke-dashoffset:55;stroke-linecap:round;transition:stroke-dashoffset 1s;}
+  .score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .score-num{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--ink);}
+  .score-label{font-size:0.55rem;color:var(--muted);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;}
+  
+  .score-section{text-align:center;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--border);}
+  .score-desc{font-size:0.78rem;color:var(--muted);text-align:center;}
+  
+  .check-item{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;font-size:0.82rem;}
+  .check-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;flex-shrink:0;font-weight:700;}
+  .check-icon.pass{background:rgba(58,140,90,0.1);color:var(--success);}
+  .check-icon.warn{background:rgba(200,80,58,0.1);color:var(--accent);}
+  
+  .mini-template-list{display:flex;flex-direction:column;gap:0.6rem;margin-top:1rem;}
+  .mini-tpl{padding:0.6rem;border:1.5px solid var(--border);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:0.8rem;font-weight:500;display:flex;align-items:center;gap:0.6rem;}
+  .mini-tpl:hover,.mini-tpl.active{border-color:var(--accent);background:rgba(200,80,58,0.04);}
+  .mini-tpl-color{width:16px;height:16px;border-radius:3px;}
+
+  /* RESUME PREVIEW */
+  .resume-area{padding:2.5rem;display:flex;flex-direction:column;align-items:center;background:#e8e3db;}
+  .paper-shadow{box-shadow:0 10px 60px rgba(0,0,0,0.2);width:100%;max-width:680px;}
+  
+  /* ACTUAL RESUME */
+  .resume{background:#fff;width:100%;padding:3rem 3.5rem;font-family:'DM Sans',sans-serif;line-height:1.5;}
+  .resume-header{border-bottom:2px solid var(--ink);padding-bottom:1.2rem;margin-bottom:1.5rem;}
+  .r-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:0.2rem;}
+  .r-role{font-size:0.95rem;color:var(--accent);font-weight:600;letter-spacing:0.02em;margin-bottom:0.8rem;}
+  .r-contact{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.78rem;color:var(--muted);}
+  .r-contact span{display:flex;align-items:center;gap:0.3rem;}
+  .r-section{margin-bottom:1.4rem;}
+  .r-section-title{font-family:'DM Mono',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.8rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border);}
+  .r-summary{font-size:0.88rem;line-height:1.7;color:#444;}
+  .r-job{margin-bottom:1rem;}
+  .r-job-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.3rem;}
+  .r-job-title{font-weight:700;font-size:0.9rem;}
+  .r-job-company{font-size:0.85rem;color:var(--muted);}
+  .r-job-date{font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;}
+  .r-job-bullets{padding-left:1.1rem;margin-top:0.4rem;}
+  .r-job-bullets li{font-size:0.83rem;color:#444;margin-bottom:0.3rem;line-height:1.5;}
+  .r-skills-grid{display:flex;flex-wrap:wrap;gap:0.4rem;}
+  .r-skill{padding:0.25rem 0.7rem;background:var(--cream);border-radius:3px;font-size:0.78rem;font-weight:500;}
+  .r-edu-row{display:flex;justify-content:space-between;align-items:baseline;}
+  .r-edu-school{font-weight:700;font-size:0.88rem;}
+  .r-edu-degree{font-size:0.83rem;color:var(--muted);margin-top:0.2rem;}
+  .r-edu-year{font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;}
+  .r-proj-name{font-weight:700;font-size:0.88rem;}
+  .r-proj-stack{font-size:0.75rem;color:var(--accent);font-weight:600;margin:0.2rem 0;}
+  .r-proj-desc{font-size:0.82rem;color:#444;line-height:1.5;}
+
+  /* RIGHT PANEL */
+  .right-panel{border-left:1px solid var(--border);padding:2rem 1.5rem;background:var(--white);}
+  .download-section{background:var(--cream);border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;text-align:center;}
+  .dl-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:0.4rem;}
+  .dl-sub{font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;}
+  .btn-dl-main{width:100%;padding:0.85rem;background:var(--ink);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.6rem;}
+  .btn-dl-main:hover{background:var(--accent);}
+  .btn-dl-secondary{width:100%;padding:0.7rem;background:transparent;color:var(--ink);border:1.5px solid var(--border);border-radius:4px;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .btn-dl-secondary:hover{border-color:var(--ink);}
+  
+  .share-section{margin-bottom:1.5rem;}
+  .share-link{display:flex;gap:0.5rem;margin-top:0.8rem;}
+  .share-link input{flex:1;padding:0.6rem 0.8rem;border:1.5px solid var(--border);border-radius:4px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);background:var(--cream);}
+  .share-link button{padding:0.6rem 0.9rem;background:var(--ink);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.78rem;font-weight:700;cursor:pointer;}
+  
+  .portfolio-cta{background:var(--ink);border-radius:8px;padding:1.5rem;text-align:center;}
+  .p-cta-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:0.4rem;}
+  .p-cta-sub{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:1rem;line-height:1.5;}
+  .btn-portfolio-cta{display:block;width:100%;padding:0.8rem;background:var(--accent);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;text-align:center;}
+  .btn-portfolio-cta:hover{background:#b84530;}
+
+  /* DOWNLOAD MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--white);border-radius:10px;padding:2.5rem;max-width:400px;width:90%;text-align:center;}
+  .modal-icon{font-size:3rem;margin-bottom:1rem;}
+  .modal-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;}
+  .modal-sub{color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.6;}
+  .modal-progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1rem;}
+  .modal-fill{height:100%;background:var(--accent);border-radius:2px;animation:loading 2s ease-in-out forwards;}
+  @keyframes loading{from{width:0}to{width:100%}}
+  .modal-close{padding:0.7rem 2rem;background:var(--ink);color:var(--white);border:none;border-radius:4px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .modal-close:hover{background:var(--accent);}
+
+  @media(max-width:1100px){.preview-layout{grid-template-columns:200px 1fr;}.right-panel{display:none;}}
+  @media(max-width:768px){.preview-layout{grid-template-columns:1fr;}.left-panel{display:none;}.resume-area{padding:1rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="logo">Folio<span>.</span></a>
+  <div class="progress-bar-wrap">
+    <div class="progress-label">Step 3 of 3 — Preview & Download</div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+  <div class="topbar-actions">
+    <a href="resume-template.html" class="btn-back">← Back</a>
+    <a href="portfolio-templates.html" class="btn-portfolio">Build Portfolio →</a>
+    <button class="btn-download" onclick="showDownload()">⬇ Download PDF</button>
+  </div>
+</div>
+
+<div class="preview-layout">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="panel-title">Resume Score</div>
+    <div class="score-section">
+      <div class="score-ring">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle class="bg" cx="40" cy="40" r="35"/>
+          <circle class="fill" cx="40" cy="40" r="35"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num">94</div>
+          <div class="score-label">ATS Score</div>
+        </div>
+      </div>
+      <div class="score-desc">Excellent! Your resume is highly optimised for ATS systems.</div>
+    </div>
+    
+    <div class="panel-title">Checks</div>
+    <div class="check-item"><div class="check-icon pass">✓</div>ATS Compatible format</div>
+    <div class="check-item"><div class="check-icon pass">✓</div>Keywords detected (12)</div>
+    <div class="check-item"><div class="check-icon pass">✓</div>Contact info complete</div>
+    <div class="check-item"><div class="check-icon pass">✓</div>Work experience present</div>
+    <div class="check-item"><div class="check-icon pass">✓</div>Quantified achievements</div>
+    <div class="check-item"><div class="check-icon warn">!</div>Add 2 more skills for better match</div>
+    <div class="check-item"><div class="check-icon warn">!</div>Consider adding certifications</div>
+    
+    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+      <div class="panel-title">Switch Template</div>
+      <div class="mini-template-list">
+        <div class="mini-tpl active"><div class="mini-tpl-color" style="background:#fff;border:1px solid #ddd;"></div>Modern Clean</div>
+        <div class="mini-tpl" onclick="swapTheme('dark')"><div class="mini-tpl-color" style="background:#1a1a1a;"></div>Midnight</div>
+        <div class="mini-tpl" onclick="swapTheme('classic')"><div class="mini-tpl-color" style="background:#2c3e50;"></div>Classic Pro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUME -->
+  <div class="resume-area">
+    <div class="paper-shadow">
+      <div class="resume" id="resume-doc">
+        <div class="resume-header">
+          <div class="r-name">Janani Priya</div>
+          <div class="r-role">Full Stack Developer</div>
+          <div class="r-contact">
+            <span>📧 janani@example.com</span>
+            <span>📞 +91 98765 43210</span>
+            <span>🌐 github.com/janani</span>
+            <span>📍 Chennai, India</span>
+          </div>
+        </div>
+
+        <div class="r-section">
+          <div class="r-section-title">Professional Summary</div>
+          <div class="r-summary">Results-driven Full Stack Developer with 3+ years of experience architecting and deploying scalable web applications serving 50,000+ daily active users. Expert in React, Python, Flask, and AWS cloud infrastructure with a proven track record of reducing system latency by 40% and accelerating deployment cycles. Passionate about AI-powered product innovation and clean, maintainable code.</div>
+        </div>
+
+        <div class="r-section">
+          <div class="r-section-title">Work Experience</div>
+          <div class="r-job">
+            <div class="r-job-header">
+              <div>
+                <div class="r-job-title">Software Engineer</div>
+                <div class="r-job-company">Acme Tech · Chennai, India</div>
+              </div>
+              <div class="r-job-date">Jan 2023 — Present</div>
+            </div>
+            <ul class="r-job-bullets">
+              <li>Led end-to-end development of 3 production microservices, reducing system latency by 35% and handling 2M+ requests/day</li>
+              <li>Built a real-time analytics dashboard used by 50k+ daily active users with React and WebSockets</li>
+              <li>Introduced CI/CD pipeline with GitHub Actions, reducing deployment time from 2 hours to 12 minutes</li>
+              <li>Mentored 2 junior developers and conducted weekly code review sessions improving team code quality by 60%</li>
+            </ul>
+          </div>
+          <div class="r-job">
+            <div class="r-job-header">
+              <div>
+                <div class="r-job-title">Full Stack Developer Intern</div>
+                <div class="r-job-company">StartupXYZ · Remote</div>
+              </div>
+              <div class="r-job-date">Jun 2022 — Dec 2022</div>
+            </div>
+            <ul class="r-job-bullets">
+              <li>Built student management portal with FastAPI and React, serving 2,000 students across 3 campuses</li>
+              <li>Implemented JWT authentication and role-based access control for 3 user roles</li>
+              <li>Optimised database queries, reducing page load time by 45%</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="r-section">
+          <div class="r-section-title">Projects</div>
+          <div class="r-job" style="margin-bottom:0.8rem;">
+            <div class="r-proj-name">Stock & ETF Signal Generation Platform</div>
+            <div class="r-proj-stack">React · Flask · PostgreSQL · Render · Vercel</div>
+            <div class="r-proj-desc">Full-stack platform generating buy/sell signals for 500+ stocks with real-time notifications, Streamlit analytics dashboard, and trigger-based alert system using background threading.</div>
+          </div>
+          <div class="r-job" style="margin-bottom:0.8rem;">
+            <div class="r-proj-name">Smart Classroom Management System</div>
+            <div class="r-proj-stack">FastAPI · MongoDB · JWT · SMTP</div>
+            <div class="r-proj-desc">Three-role SPA (admin, teacher, student) with constraint-based timetable scheduling, attendance tracking, and email notifications.</div>
+          </div>
+        </div>
+
+        <div class="r-section">
+          <div class="r-section-title">Skills</div>
+          <div class="r-skills-grid">
+            <span class="r-skill">React</span><span class="r-skill">TypeScript</span><span class="r-skill">Python</span><span class="r-skill">Flask</span><span class="r-skill">FastAPI</span><span class="r-skill">Node.js</span><span class="r-skill">MongoDB</span><span class="r-skill">PostgreSQL</span><span class="r-skill">AWS</span><span class="r-skill">Docker</span><span class="r-skill">Git</span><span class="r-skill">REST APIs</span>
+          </div>
+        </div>
+
+        <div class="r-section">
+          <div class="r-section-title">Education</div>
+          <div class="r-edu-row">
+            <div>
+              <div class="r-edu-school">XYZ University of Technology</div>
+              <div class="r-edu-degree">B.Tech Computer Science & Engineering · GPA: 8.9 / 10</div>
+            </div>
+            <div class="r-edu-year">2020 — 2024</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="download-section">
+      <div class="dl-title">Ready to download!</div>
+      <div class="dl-sub">Your resume is ATS-optimised and print-ready. Download as PDF or share a live link.</div>
+      <button class="btn-dl-main" onclick="showDownload()">⬇ Download PDF</button>
+      <button class="btn-dl-secondary">📋 Copy Share Link</button>
+    </div>
+    
+    <div class="share-section">
+      <div class="panel-title">Share Link</div>
+      <div class="share-link">
+        <input type="text" value="folio.so/r/janani-priya" readonly/>
+        <button>Copy</button>
+      </div>
+    </div>
+    
+    <div class="panel-title" style="margin-bottom:1rem;">What's next?</div>
+    <div class="portfolio-cta">
+      <div class="p-cta-title">Build your portfolio</div>
+      <div class="p-cta-sub">Turn your resume data into a stunning portfolio website with a single click.</div>
+      <a href="portfolio-templates.html" class="btn-portfolio-cta">Build Portfolio →</a>
+    </div>
+  </div>
+</div>
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-overlay" id="dl-modal">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">⏳</div>
+    <div class="modal-title" id="modal-title">Generating PDF...</div>
+    <div class="modal-sub" id="modal-sub">Please wait while we render your resume with pixel-perfect precision.</div>
+    <div class="modal-progress"><div class="modal-fill"></div></div>
+    <button class="modal-close" id="modal-btn" style="display:none" onclick="closeDlModal()">Done ✓</button>
+  </div>
+</div>
+
+<script>
+function showDownload(){
+  document.getElementById('dl-modal').classList.add('show');
+  setTimeout(()=>{
+    document.getElementById('modal-icon').textContent='✅';
+    document.getElementById('modal-title').textContent='Your PDF is ready!';
+    document.getElementById('modal-sub').textContent='resume-janani-priya.pdf has been downloaded to your computer.';
+    document.getElementById('modal-btn').style.display='inline-block';
+    // Simulate PDF download
+    const a = document.createElement('a');
+    a.href = '#';
+    a.download = 'resume-janani-priya.pdf';
+    // In real app: window.print() or jsPDF
+  }, 2200);
+}
+function closeDlModal(){
+  document.getElementById('dl-modal').classList.remove('show');
+}
+function swapTheme(theme){
+  const resume = document.getElementById('resume-doc');
+  document.querySelectorAll('.mini-tpl').forEach(t=>t.classList.remove('active'));
+  event.target.closest('.mini-tpl').classList.add('active');
+  if(theme==='dark'){
+    resume.style.background='#1a1a1a';
+    resume.style.color='#fff';
+  } else if(theme==='classic'){
+    resume.style.background='#fff';
+    resume.style.color='#2c3e50';
+    resume.style.borderTop='4px solid #2c3e50';
+  } else {
+    resume.style.background='#fff';
+    resume.style.color='';
+    resume.style.borderTop='';
+  }
+}
+</script>
+</body>
+</html>
