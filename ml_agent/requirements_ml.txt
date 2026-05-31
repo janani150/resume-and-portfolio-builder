@@ -1,0 +1,10 @@
+# ML Dependencies
+torch==2.2.0
+transformers==4.38.0
+sentence-transformers==2.5.1
+scikit-learn==1.4.0
+pandas==2.2.0
+numpy==1.26.0
+nltk==3.8.1
+datasets==2.17.0
+accelerate==0.27.0
